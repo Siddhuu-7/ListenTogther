@@ -144,10 +144,15 @@ const CreateRoomPage = ({ onBack }) => {
       </button>
       
       <button
-        className="w-full p-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-300"
-      >
-        Share Invitation
-      </button>
+  onClick={() => {
+    navigator.clipboard.writeText(formData.roomKey);
+    alert('Room ID copied to clipboard!');
+  }}
+  className="w-full p-3 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-300"
+>
+  Share Invitation {formData.roomKey}
+</button>
+
     </div>
   );
 
