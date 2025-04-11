@@ -54,7 +54,7 @@ const SocialPlatformLanding = () => {
                             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             <div className="relative flex items-center">
                                 <Video className="h-6 w-6 mr-3" />
-                                <span className="text-lg font-semibold">Creator Access</span>
+                                <span className="text-lg font-semibold">Admin Access</span>
                             </div>
                             <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-white rounded-full group-hover:w-3/4 transition-all duration-300" />
                         </button>

@@ -7,7 +7,6 @@ const CreateRoomPage = ({ onBack }) => {
     userName: ''
   });
   const navigate=useNavigate()
-  const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -136,7 +135,7 @@ const CreateRoomPage = ({ onBack }) => {
       
       <button
       onClick={()=>{
-        navigate(`/songSelection/${formData.roomKey}`);
+        navigate(`/songSelection/${formData.roomKey}`,{replace:true});
       }}
         className="w-full p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium shadow-md transition-all duration-300"
       >

@@ -22,7 +22,7 @@ const CreatorAuthPage = () => {
       setSubmitting(false);
       if (creatorKey === 'demo123') { 
         setSuccess(true);
-        navigate('/Creator',{replace:true})
+        navigate('/Admin',{replace:true})
       } else {
         setError('Invalid creator key. Please try again.');
       }
@@ -34,7 +34,7 @@ const CreatorAuthPage = () => {
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
         <div className="flex items-center mb-6">
           <button 
-            onClick={()=>navigate('/')}
+            onClick={()=>navigate('/',{replace:true})}
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Go back"
           >

@@ -2,13 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, MoreVertical, ArrowLeft,Home ,Music,Plus} from 'lucide-react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import NowPlayingCard from './chatSong';
+import DefaultPng from './assets/music.png'
 import { io } from 'socket.io-client';
 const socket=io(import.meta.env.VITE_BACKEND_API)
 const ChatRoom = () => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const {roomId}=useParams();
+  localStorage.setItem('roomId',roomId)
   const [socketId, setSocketId] = useState('');
+  const[isloading,setIsloading]=useState(false)
  const [otherUserName,setOtheruserName]=useState("")
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,9 +19,10 @@ const ChatRoom = () => {
 const [songs,setSongs]=useState([])
 const [isSongListOpen, setIsSongListOpen] = useState(false);
 const [searchQuery, setSearchQuery] = useState('');
-const filteredSongs = songs.filter((song) =>
-  song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  song.artist.toLowerCase().includes(searchQuery.toLowerCase())
+const [customSongChangeTrigger, setCustomSongChangeTrigger] = useState(0);
+let filteredSongs = songs.filter((song) =>
+  song.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  song.artist?.toLowerCase().includes(searchQuery.toLowerCase())
 );
 useEffect(() => {
   const fetchSongs = async () => {
@@ -43,6 +47,7 @@ useEffect(() => {
   };
 
   fetchSongs();
+  fetchCustomSongs();
 }, []);
   const song = location.state;
   const [Song,setSong]=useState(song);
@@ -117,6 +122,93 @@ useEffect(() => {
       setMessage('');
     }
   };
+  const handleCustomSongUpload = async (e) => {
+    setIsloading(true)
+    try {
+      const file = e.target.files[0];
+      if (!file) {
+        console.warn("No file selected");
+        return;
+      }
+  
+      const authRes = await fetch(import.meta.env.VITE_AUTH_API);
+      const auth = await authRes.json();
+  
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("fileName", file.name);
+      formData.append("publicKey", import.meta.env.VITE_PUBLIC_KEY);
+      formData.append("signature", auth.signature);
+      formData.append("expire", auth.expire);
+      formData.append("token", auth.token);
+      formData.append("folder", `ListenTogetherCustm${roomId}`);
+  
+      const res = await fetch(import.meta.env.VITE_IMGKIT_API, {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await res.json();
+      await fetch(import.meta.env.VITE_SAVE_FOLDERS,{
+        method:"POST",
+        headers: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json',
+        },
+        body:JSON.stringify({FolderName:`ListenTogetherCustm${roomId}`})
+      })
+    const formattedSongs={
+      id:data.fileId,
+      title:data.embeddedMetadata?.title|| data.name,
+      artist:data.embeddedMetadata?.Artist|| "Unknown Artist",
+      url:data.url,
+      thumbnail:data.thumbnail,
+      duration:`${Math.floor(data.size/1000000)} MB`,
+      color:`from-pink-400 to-purple-400`
+
+    }      
+
+    setSongs([formattedSongs,...songs])
+      if (data) {       
+        setCustomSongChangeTrigger((prev) => prev + 1);
+        setIsloading(false)
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+    }
+  };
+  const fetchCustomSongs = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_TMP_MUSIC_DATA_FETCH}?folder=ListenTogetherCustm${roomId}`);
+      const result = await response.json();
+
+      const formattedSongs = result.data.map((item) => ({
+        id: item.fileId,
+        title: item.embeddedMetadata?.Title || item.name,
+        artist: item.embeddedMetadata?.Artist || "Unknown Artist",
+        url: item.url,
+        thumbnail: item.thumbnail,
+        duration: `${Math.floor(item.size / 1000000)} MB`,
+        color: `from-pink-400 to-purple-400`,
+      }));
+
+
+      setSongs((prevSongs) => {
+        const existingIds = new Set(prevSongs.map((song) => song.id));
+        const newCustomSongs = formattedSongs.filter((song) => !existingIds.has(song.id));
+        return [...newCustomSongs, ...prevSongs];
+      });
+        } catch (error) {
+      console.error("Error fetching custom songs:", error);
+    }
+  };
+  
+  useEffect(() => {
+
+  
+    fetchCustomSongs();
+    console.log("custome song is added")
+  }, [customSongChangeTrigger]);
   
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -250,34 +342,46 @@ useEffect(() => {
         onChange={(e) => setSearchQuery(e.target.value)}
         className="w-full border border-gray-300 rounded-full px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
+<label className="inline-flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-full cursor-pointer hover:bg-indigo-600 transition">
+  <Plus size={18} />
+  Upload Song
+  <input
+    type="file"
+    accept="audio/*"
+    onChange={handleCustomSongUpload}
+    className="hidden"
+  />
+</label>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {filteredSongs.length > 0 ? (
-          filteredSongs.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center space-x-4 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition"
-              onClick={() => {
-                setSong(item);
+        {isloading ? (<Skeleton/>):""}
+     { filteredSongs.length > 0 ? (
+      
+  filteredSongs.map((item) => (
+    <div
+      key={item.id}
+      className="flex items-center space-x-4 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition"
+      onClick={() => {
+        setSong(item);
+        socket.emit('songDetails', { song: item, roomId });
+        setIsSongListOpen(false);
+      }}
+    >
+      <img
+        src={item.thumbnail||DefaultPng}
+        alt={item.title}
+        className="w-12 h-12 rounded-md object-cover"
+      />
+      <div>
+        <p className="font-medium">{item.title}</p>
+        <p className="text-sm text-gray-500">{item.artist}</p>
+      </div>
+    </div>
+  ))
+) : (
+  <p className="text-center col-span-2 text-gray-500">No songs found.</p>
+)}
 
-                socket.emit('songDetails', { song: item, roomId });
-                setIsSongListOpen(false);
-              }}
-            >
-              <img
-                src={item.thumbnail}
-                alt={item.title}
-                className="w-12 h-12 rounded-md object-cover"
-              />
-              <div>
-                <p className="font-medium">{item.title}</p>
-                <p className="text-sm text-gray-500">{item.artist}</p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-center col-span-2 text-gray-500">No songs found.</p>
-        )}
       </div>
     </div>
   </div>
@@ -287,3 +391,14 @@ useEffect(() => {
 };
 
 export default ChatRoom;
+const Skeleton = () => {
+  return (
+    <div className="flex items-center space-x-4 p-2 rounded-lg animate-pulse bg-white shadow-sm">
+      <div className="w-12 h-12 bg-gray-300 rounded-md shimmer" />
+      <div className="flex flex-col space-y-2 w-full">
+        <div className="w-3/4 h-4 bg-gray-300 rounded shimmer" />
+        <div className="w-1/2 h-3 bg-gray-200 rounded shimmer" />
+      </div>
+    </div>
+  );
+};

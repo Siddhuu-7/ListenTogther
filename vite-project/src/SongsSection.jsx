@@ -3,6 +3,8 @@ import { Search, Play, Plus,Pause } from 'lucide-react';
 import Modal from './selctedSongPopUp'
 import { useNavigate, useParams } from 'react-router-dom';
 import Songs from './songs';
+import { io } from "socket.io-client";
+
 const SongSelectionPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
 const {roomId}=useParams();

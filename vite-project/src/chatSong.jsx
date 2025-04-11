@@ -10,6 +10,9 @@ const NowPlayingCard = ({ song, roomID }) => {
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
 
+  
+  
+  
   useEffect(() => {
     if (roomID) {
       socket.emit('joinRoom', roomID);
@@ -19,14 +22,14 @@ const NowPlayingCard = ({ song, roomID }) => {
     const audio = audioRef.current;
   
     if (audio) {
-      audio.pause(); // stop the old audio
-      audio.currentTime = 0; // reset time
+      audio.pause();
+      audio.currentTime = 0; 
     }
   
-    setIsPlaying(false); // show Play button
+    setIsPlaying(false); 
     setCurrentTime(0);
     setDuration(0);
-  }, [song]); // Runs when song prop changes
+  }, [song]); 
   
   useEffect(() => {
     const audio = audioRef.current;

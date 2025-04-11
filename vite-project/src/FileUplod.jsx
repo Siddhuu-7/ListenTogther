@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Upload, X, Music, Check, AlertCircle } from 'lucide-react';
+import { Upload, X, Music, Check, AlertCircle ,ArrowLeft} from 'lucide-react';
+import { replace, useNavigate } from 'react-router-dom';
 
 const SongUpload = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -9,7 +10,7 @@ const SongUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [filter, setFilter] = useState([]);
   const [isUploaded, setIsUploaded] = useState({}); 
-
+const navigate=useNavigate()
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -135,10 +136,26 @@ const SongUpload = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Upload Your Music</h1>
-        <p className="text-gray-600 mt-2">Upload your songs to the cloud and access them anywhere</p>
-      </div>
+    <div className="flex items-center mb-6">
+      <button 
+      onClick={()=>navigate('/Admin',{replace:true})}
+      className="p-2 rounded-full hover:bg-gray-200 transition">
+        <ArrowLeft size={28} className="text-gray-700" />
+      </button>
+      <h1 className="ml-4 text-3xl font-bold text-gray-800">Upload Your Music</h1>
+    </div>
+  
+    <p className="text-gray-600 text-lg">
+      Upload your songs to the cloud and access them anywhere, anytime.
+    </p>
+
+
+
+
+
+
+
+
 
       <div
         className={`border-2 border-dashed rounded-lg p-8 text-center ${dragActive ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
