@@ -3,15 +3,16 @@ import { Search, Play, Plus,Pause } from 'lucide-react';
 import Modal from './selctedSongPopUp'
 import { useNavigate, useParams } from 'react-router-dom';
 import Songs from './songs';
-import { io } from "socket.io-client";
 
 const SongSelectionPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isloading,setisloading]=useState(false)
 const {roomId}=useParams();
 const [songs,setSongs]=useState([])
 useEffect(() => {
   const fetchSongs = async () => {
     try {
+      setisloading(true)
       const response = await fetch(import.meta.env.VITE_MUSIC_FILE_FETCH);
       const result = await response.json();
 
@@ -26,6 +27,7 @@ useEffect(() => {
       }));
 
       setSongs(formattedSongs);
+      setisloading(false)
       setSelectedSong(formattedSongs[0]); 
     } catch (error) {
       console.error("Error fetching songs:", error);
@@ -107,7 +109,7 @@ const setmodalopen=(bool)=>{
         <div className="mb-8">
   <h2 className="text-xl font-bold mb-4 text-gray-800">Featured Songs</h2>
   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-    {filteredSongs?.slice(0,10).map((song) => (
+   {isloading?Array.from({length:10}).map((_,i)=><Skeleton key={i}/>): filteredSongs?.slice(0,10).map((song) => (
       <Songs key={song.id}
        setSong={setSong}
      song={song}
@@ -204,3 +206,18 @@ const setmodalopen=(bool)=>{
 };
 
 export default SongSelectionPage;
+ const Skeleton=()=>{
+  return (
+    <div className="bg-white rounded-xl overflow-hidden shadow-md animate-pulse">
+      <div className="h-48 w-full bg-gray-200"></div>
+      <div className="p-4 space-y-2">
+        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+        <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+        <div className="flex justify-between mt-3">
+          <div className="h-3 w-12 bg-gray-300 rounded"></div>
+          <div className="h-4 w-4 bg-gray-300 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+ }

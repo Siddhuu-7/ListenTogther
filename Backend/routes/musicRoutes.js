@@ -3,7 +3,6 @@ const ImageKit = require('imagekit');
 const router=express.Router()
 const Model=require('../Models/TemperoryFiles.model')
 const FolderModel=require('../Models/folders');
-const { json } = require('body-parser');
 require('dotenv').config()
 const imagekit = new ImageKit({
     publicKey: process.env.PUBLICKEY,
@@ -38,15 +37,10 @@ const imagekit = new ImageKit({
 // });
 router.get('/getFolders',async(req,res)=>{
  try {
-    const data = await imagekit.listFiles({ limit: 1000 });
-    const folders = new Set();
-    data.forEach(file => {
-      const folderName = file.filePath.split('/')[1];
-      if (folderName) folders.add(folderName);
-    });
-    console.log(folders)
+    const folder=await FolderModel.find()
+   
+    res.status(201).json(folder)
 
-    res.status(202).json({msg:[...folders]})
  } catch (error) {
     res.status(505).json({msg:error.message})
  }
@@ -83,13 +77,12 @@ router.get('/getTmpMusic',async(req,res)=>{
 //     }
 // })
 router.post('/deletefolder',async (req,res) => {
-    const {bool,roomId}=req.body;
-    console.log(req.body)
+    const {FolderName}=req.body;
     try {
-        if(bool){
-            // await imagekit.deleteFolder(`ListenTogetherCustm${roomId}`)
-        }
-        res.status(201).json({msg:"deleetd successfully"})
+            await imagekit.deleteFolder(FolderName)
+            await FolderModel.deleteOne({FolderName})
+        
+        res.status(201).json({msg:"deleted successfully"})
     } catch (error) {
         res.status(505).json({msg:error.message})
     }
@@ -100,7 +93,6 @@ router.post('/folderSave', async (req, res) => {
     try {
       const data = new FolderModel({ FolderName });
       await data.save();
-  
       res.status(201).json({ msg: "Saved " + FolderName });
     } catch (error) {
       if (error.code === 11000) {
