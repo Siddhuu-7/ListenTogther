@@ -8,6 +8,7 @@ const mongodbConfig=require('./Models/mongodb.config')
 const Socket=require('./socket/socket')
 const MusicRoute=require('./routes/musicRoutes')
 const server=http.createServer(app)
+const path = require('path');
 mongodbConfig();
 Socket(server)
 app.use(express.json());
@@ -19,6 +20,17 @@ app.use(cors({
 }));
 app.use('',auth)
 app.use('',MusicRoute)
+
+app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', (req, res) => {
+  try {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  } catch (error) {
+    console.error("Error serving index.html:", error);
+    res.status(500).send("Server error");
+  }
+});
 
 
 
