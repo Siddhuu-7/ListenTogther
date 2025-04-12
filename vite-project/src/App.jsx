@@ -14,15 +14,16 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' Component={FirstPage} />
-        <Route path='/Admin' Component={Admin}/>
-        <Route path='/Creator-Auth' Component={CreatorAccess} />
-        <Route path='/creator-file-upload' Component={FileUpload} />
-        <Route path='/Create-Room' Component={CreateRoomPage} />
-        <Route path='/Chat-Room/:roomId' Component={Chat} />
-        <Route path='/songSelection/:roomId' Component={SongSelectionPage} />
-        <Route path='*' Component={pageNotFound}/>
-      </Routes>
+  <Route path="/" element={<FirstPage />} />
+  <Route path="/Admin" element={<Admin />} />
+  <Route path="/Creator-Auth" element={<CreatorAccess />} />
+  <Route path="/creator-file-upload" element={<FileUpload />} />
+  <Route path="/Create-Room" element={<CreateRoomPage />} />
+  <Route path="/Chat-Room" element={<Chat />} />
+  <Route path="/songSelection" element={<SongSelectionPage />} />
+  <Route path="*" element={<pageNotFound />} />
+</Routes>
+
     </BrowserRouter>
   );
 }

@@ -11,6 +11,7 @@ const server=http.createServer(app)
 mongodbConfig();
 Socket(server)
 app.use(express.json());
+
 app.use(cors({
   origin: '*', 
   methods: ['POST','GET'],
@@ -18,6 +19,10 @@ app.use(cors({
 }));
 app.use('',auth)
 app.use('',MusicRoute)
+
+
+
+
 server.listen(3001, () => {
   console.log('Server Running At 3001');
 });

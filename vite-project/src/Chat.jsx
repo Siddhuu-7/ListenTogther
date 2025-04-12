@@ -8,8 +8,7 @@ const socket=io(import.meta.env.VITE_BACKEND_API)
 const ChatRoom = () => {
   const [message, setMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
-  const {roomId}=useParams();
-  localStorage.setItem('roomId',roomId)
+  const roomId=localStorage.getItem('roomId')
   const [socketId, setSocketId] = useState('');
   const[isloading,setIsloading]=useState(false)
  const [otherUserName,setOtheruserName]=useState("")

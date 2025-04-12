@@ -7,7 +7,7 @@ import Songs from './songs';
 const SongSelectionPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isloading,setisloading]=useState(false)
-const {roomId}=useParams();
+const roomId=localStorage.getItem('roomId')
 const [songs,setSongs]=useState([])
 useEffect(() => {
   const fetchSongs = async () => {
@@ -81,7 +81,7 @@ const setmodalopen=(bool)=>{
 
   <div className="flex-1 flex justify-center">
     <button
-      onClick={() => navigate(`/Chat-Room/${roomId}`)}
+      onClick={() => navigate(`/Chat-Room`)}
       className="px-6 py-2 bg-indigo-500 text-white rounded-full shadow-md hover:bg-indigo-600 transition-all duration-300"
     >
       🎧 Listen Room
@@ -190,7 +190,7 @@ const setmodalopen=(bool)=>{
           className="px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition"
           onClick={() => {
             setIsModalOpen(false);
-            navigate(`/Chat-Room/${roomId}`, { state: selectedSong })
+            navigate(`/Chat-Room`, { state: selectedSong })
         }}
         >
           🤝 Listen Together

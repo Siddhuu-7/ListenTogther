@@ -26,6 +26,7 @@ const CreateRoomPage = ({ onBack }) => {
       setSuccess(true);
     }, 1500);
     localStorage.setItem('username',formData.userName);
+    localStorage.setItem('roomId',formData.roomKey)
   };
   const GenerateKey = () => {
     const key = `ROOM-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
@@ -135,7 +136,7 @@ const CreateRoomPage = ({ onBack }) => {
       
       <button
       onClick={()=>{
-        navigate(`/songSelection/${formData.roomKey}`,{replace:true});
+        navigate(`/songSelection`,{replace:true});
       }}
         className="w-full p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-medium shadow-md transition-all duration-300"
       >
