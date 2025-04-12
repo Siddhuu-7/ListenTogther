@@ -18,14 +18,15 @@ app.use(cors({
   methods: ['POST','GET'],
   credentials: true
 }));
-app.use('',auth)
-app.use('',MusicRoute)
+app.use('/auth', auth);
+app.use('/music', MusicRoute);
 
-app.use(express.static(path.join(__dirname, 'dist')));
 
-app.get('*', (req, res) => {
+app.use(express.static(path.join(__dirname,'../vite-project/dist')));
+
+app.get('/', (req, res) => {
   try {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    res.sendFile(path.join(__dirname, '../vite-project/dist', 'index.html'));
   } catch (error) {
     console.error("Error serving index.html:", error);
     res.status(500).send("Server error");
