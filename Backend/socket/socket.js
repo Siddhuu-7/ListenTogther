@@ -28,8 +28,8 @@ const Socket=(server)=>{
         socket.on('addingCustomeSong',({bool,roomId})=>{
           io.to(roomId).emit('addingCustomeSong',bool)
         })
-        socket.on('customeSongDetails',({formattedSongs,roomId,senderId})=>{
-          io.to(roomId).emit('customeSongDetails',{formattedSongs,senderId})
+        socket.on('customeSongDetails',({formattedSong,roomId,senderId})=>{
+          io.to(roomId).emit('customeSongDetails',{formattedSong,senderId})
         })
       
       })

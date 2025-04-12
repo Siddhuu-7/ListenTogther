@@ -15,6 +15,7 @@ const ChatRoom = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const messagesEndRef = useRef(null);
+  const [customSong,setCustomSong]=useState({})
 const [songs,setSongs]=useState([])
 const [isSongListOpen, setIsSongListOpen] = useState(false);
 const [searchQuery, setSearchQuery] = useState('');
@@ -91,11 +92,11 @@ useEffect(() => {
     })
       socket.on('addingCustomeSong',(bool)=>{
         setIsloading(bool)
+        console.log("bool",bool)
       })
-      socket.on('customeSongDetails',({formattedSongs,senderId})=>{
+      socket.on('customeSongDetails',({formattedSong,senderId})=>{
         if(senderId===socketId) return
-        setSongs([formattedSongs,...songs])// need to check this later
-        
+                setSongs([formattedSong,...songs])
 
       })
   
@@ -168,7 +169,7 @@ useEffect(() => {
         },
         body:JSON.stringify({FolderName:`ListenTogetherCustm${roomId}`})
       })
-    const formattedSongs={
+    const formattedSong={
       id:data.fileId,
       title:data.embeddedMetadata?.title|| data.name,
       artist:data.embeddedMetadata?.Artist|| "Unknown Artist",
@@ -178,8 +179,8 @@ useEffect(() => {
       color:`from-pink-400 to-purple-400`
 
     }      
-    socket.emit('customeSongDetails',{formattedSongs,roomId,senderId:socketId})
-    setSongs([formattedSongs,...songs])
+    socket.emit('customeSongDetails',{formattedSong,roomId,senderId:socketId})
+    setSongs([formattedSong,...songs])
       if (data) {       
         setCustomSongChangeTrigger((prev) => prev + 1);
         socket.emit('addingCustomeSong',{bool:false,roomId})
