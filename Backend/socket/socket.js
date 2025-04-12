@@ -1,4 +1,5 @@
 const {Server}=require('socket.io')
+const messageModel=require('../Models/messgae')
 const Socket=(server)=>{
     const io=new Server(server,{
         cors:{
@@ -12,6 +13,7 @@ const Socket=(server)=>{
         })
         socket.on('sendmessage', ({ message, roomId,username, senderId }) => {
           socket.to(roomId).emit('recivemessage', { message, senderId ,username});
+        
         });
         socket.on('songDetails',({song,roomId})=>{
           socket.to(roomId).emit('reciveSongDetails', song);
@@ -23,7 +25,13 @@ const Socket=(server)=>{
         socket.on('syncTime', ({ roomID, currentTime }) => {
           socket.to(roomID).emit('syncTime', { currentTime });
         });
-        
+        socket.on('addingCustomeSong',({bool,roomId})=>{
+          io.to(roomId).emit('addingCustomeSong',bool)
+        })
+        socket.on('customeSongDetails',({formattedSongs,roomId,senderId})=>{
+          io.to(roomId).emit('customeSongDetails',{formattedSongs,senderId})
+        })
+      
       })
       
 }

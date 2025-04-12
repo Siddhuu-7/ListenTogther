@@ -89,9 +89,20 @@ useEffect(() => {
         setSong(song)
       }
     })
+      socket.on('addingCustomeSong',(bool)=>{
+        setIsloading(bool)
+      })
+      socket.on('customeSongDetails',({formattedSongs,senderId})=>{
+        if(senderId===socketId) return
+        setSongs([formattedSongs,...songs])// need to check this later
+        
+
+      })
   
     return () => {
       socket.off('recivemessage');
+      socket.off('addingCustomeSong');
+      socket.off('customeSongDetails');
     };
   }, [roomId]);
   
@@ -124,6 +135,7 @@ useEffect(() => {
   const handleCustomSongUpload = async (e) => {
     setIsloading(true)
     try {
+      socket.emit('addingCustomeSong',{bool:true,roomId})
       const file = e.target.files[0];
       if (!file) {
         console.warn("No file selected");
@@ -141,7 +153,7 @@ useEffect(() => {
       formData.append("expire", auth.expire);
       formData.append("token", auth.token);
       formData.append("folder", `ListenTogetherCustm${roomId}`);
-  
+     
       const res = await fetch(import.meta.env.VITE_IMGKIT_API, {
         method: "POST",
         body: formData,
@@ -166,10 +178,12 @@ useEffect(() => {
       color:`from-pink-400 to-purple-400`
 
     }      
-
+    socket.emit('customeSongDetails',{formattedSongs,roomId,senderId:socketId})
     setSongs([formattedSongs,...songs])
       if (data) {       
         setCustomSongChangeTrigger((prev) => prev + 1);
+        socket.emit('addingCustomeSong',{bool:false,roomId})
+
         setIsloading(false)
       }
     } catch (error) {
