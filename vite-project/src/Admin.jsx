@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Folder, Clock, Trash2, Upload, FileX, Music, PlusCircle, Star } from 'lucide-react';
 import { useNavigate,Link } from 'react-router-dom';
+import Fetchedreview from './components/Fetchedreview'
 export default function AdminDashboard() {
 
 
@@ -163,7 +164,6 @@ return colors[Math.floor(Math.random()*4)]
             <span>Delete Last Date Files</span>
           </button>
         </div>
-   {/* main folder card */}
       
         <div className="bg-white rounded-xl shadow-xl p-6 border border-gray-100 mb-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
@@ -246,6 +246,7 @@ return colors[Math.floor(Math.random()*4)]
           
         </div>
       </main>
+      <Fetchedreview/>
       
       <footer className="bg-white border-t border-gray-200 mt-8">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">

@@ -9,6 +9,7 @@ const mongodbConfig=require('./Models/mongodb.config')
 const Socket=require('./socket/socket')
 const MusicRoute=require('./routes/musicRoutes')
 const server=http.createServer(app)
+const review=require('./routes/review.router')
 mongodbConfig();
 Socket(server)
 app.use(express.json());
@@ -21,6 +22,7 @@ app.use(cors({
 app.use('',auth)
 app.use('',message)
 app.use('',MusicRoute)
+app.use('',review)
 server.listen(3001, () => {
   console.log('Server Running At 3001');
 });

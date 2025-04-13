@@ -38,6 +38,7 @@ const imagekit = new ImageKit({
 router.get('/getFolders',async(req,res)=>{
  try {
     const folder=await FolderModel.find()
+    if(!folder) return
    
     res.status(201).json(folder)
 
