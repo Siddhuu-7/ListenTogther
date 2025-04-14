@@ -12,6 +12,7 @@ export default function AdminDashboard() {
       try {
         const Folders=await fetch(import.meta.env.VITE_GET_FOLDER);
         const res= await Folders.json();
+        console.log(res)
         if(res){
           setFolders(res)
         }
@@ -91,7 +92,7 @@ return colors[Math.floor(Math.random()*4)]
           },
           body: JSON.stringify({ FolderName: folder.name }) 
         });
-  
+        
         setFolders(prev => prev.filter(f => f._id !== folder._id));
   
         showNotificationAlert(`Deleted folder: ${folder.name}`);

@@ -46,16 +46,22 @@ router.get('/getFolders',async(req,res)=>{
     res.status(505).json({msg:error.message})
  }
 })
-router.get('/getTmpMusic',async(req,res)=>{
-    const{folder}=req.query
-    try {
-        const result = await imagekit.listFiles({ path:folder });
-        res.status(200).json({data: result });
-    } catch (error) {
-        
-        res.status(500).json({ msg: 'Failed to fetch files', error });
-    }
-})
+router.get('/getTmpMusic', async (req, res) => {
+  const { folder } = req.query;
+
+  if (!folder) {
+    return res.status(400).json({ msg: "Missing 'folder' query parameter" });
+  }
+
+  try {
+    const result = await imagekit.listFiles({ path: `/tmpFolder/${folder}` });
+    res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("ImageKit fetch error:", error?.message || error);
+    res.status(500).json({ msg: "Failed to fetch files", error });
+  }
+});
+
 // router.delete('/deleteTmpData',async (req,res) => {
 //     const {bool,roomId}=req.body;
 //     try {

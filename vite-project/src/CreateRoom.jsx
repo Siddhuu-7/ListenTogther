@@ -55,7 +55,9 @@ const CreateRoomPage = ({ onBack }) => {
         <div className="bg-green-100 text-green-800 text-sm rounded-lg p-3 mb-3 border border-blue-200 space-y-2">
 <p>🎧 Click the <strong>"Generate Key"</strong> button if you have Key else Enter <strong>"Shared Key"
   </strong> to Enter <strong>"ListenTogther"</strong>.
-  </p>        </div>
+  </p>       
+  <p>📝<strong>For Better Exprience use this on High Internet Speed</strong></p>
+   </div>
   
         <div className="bg-blue-100 text-blue-800 text-sm rounded-lg p-3 mb-3 border border-blue-200 space-y-2">
           <p>🎧 Click on the <strong>"Listen Together"</strong> button at the top of the home page to join a room.</p>

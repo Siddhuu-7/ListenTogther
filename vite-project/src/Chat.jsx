@@ -4,6 +4,7 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import NowPlayingCard from './chatSong';
 import DefaultPng from './assets/music.png';
 import { io } from 'socket.io-client';
+import music1 from './assets/music1.png'
 import Review from './components/review';
 const socket = io(import.meta.env.VITE_BACKEND_API);
 
@@ -43,6 +44,7 @@ const ChatRoom = () => {
           duration: `${Math.floor(item.size / 1000000)} MB`, 
           color: `from-pink-400 to-purple-400`, 
         }));
+        console.log('Admin Added Songs',formattedSongs)
 
         setSongs(formattedSongs);
       } catch (error) {
@@ -50,13 +52,12 @@ const ChatRoom = () => {
       }
     };
     const r=sessionStorage.getItem('review')
-
     fetchSongs();
     fetchCustomSongs();
     if(!r){
       setTimeout(()=>{
         setIsReviewOpen(true)
-      },5000);
+      },60000);
     }
   
   }, []);
@@ -169,46 +170,48 @@ const ChatRoom = () => {
         console.warn("No file selected");
         return;
       }
-  
       const authRes = await fetch(import.meta.env.VITE_AUTH_API);
       const auth = await authRes.json();
-  
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("fileName", file.name);
-      formData.append("publicKey", import.meta.env.VITE_PUBLIC_KEY);
-      formData.append("signature", auth.signature);
-      formData.append("expire", auth.expire);
-      formData.append("token", auth.token);
-      formData.append("folder", `ListenTogetherCustm${roomId}`);
-     
-      const res = await fetch(import.meta.env.VITE_IMGKIT_API, {
-        method: "POST",
-        body: formData,
-      });
-  
-      const data = await res.json();
+      const FolderName=`${roomId}`.replace(/[^a-zA-Z0-9-_]/g, "_"); 
+      
+
+     const formData = new FormData();
+     formData.append("file", file);
+     formData.append("fileName", file.name);
+     formData.append("publicKey", import.meta.env.VITE_PUBLIC_KEY);
+     formData.append("signature", auth.signature);
+     formData.append("expire", auth.expire);
+     formData.append("token", auth.token);
+     formData.append("folder",  `tmpFolder/${FolderName}`);
+
+     const res = await fetch(import.meta.env.VITE_IMGKIT_API, {
+       method: "POST",
+       body: formData,
+     });
+     const data = await res.json();
+    console.log(data)
       await fetch(import.meta.env.VITE_SAVE_FOLDERS, {
         method: "POST",
         headers: {
           'Accept': 'application/json',
           'Content-type': 'application/json',
         },
-        body: JSON.stringify({FolderName: `ListenTogetherCustm${roomId}`})
+        body: JSON.stringify({FolderName: FolderName})
       });
       
       const formattedSong = {
         id: data.fileId,
-        title: data.embeddedMetadata?.title || data.name,
+        title: data.embeddedMetadata?.title || data.name.replace(/\[.*?\]\s*\d+\s*-\s*/, ''),
         artist: data.embeddedMetadata?.Artist || "Unknown Artist",
         url: data.url,
         thumbnail: data.thumbnail,
         duration: `${Math.floor(data.size/1000000)} MB`,
         color: `from-pink-400 to-purple-400`
       };      
+      console.log("sending cutome somg",formattedSong)
       
       socket.emit('customeSongDetails', {formattedSong, roomId, senderId: socketId});
-      setSongs([formattedSong, ...songs]);
+      setSongs((prevSongs) => [formattedSong, ...prevSongs]);
       
       if (data) {       
         setCustomSongChangeTrigger((prev) => prev + 1);
@@ -222,12 +225,13 @@ const ChatRoom = () => {
   
   const fetchCustomSongs = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_TMP_MUSIC_DATA_FETCH}?folder=ListenTogetherCustm${roomId}`);
+      const FolderName=`${roomId}`.replace(/[^a-zA-Z0-9-_]/g, "_"); 
+      const response = await fetch(`${import.meta.env.VITE_TMP_MUSIC_DATA_FETCH}?folder=${FolderName}`);
       const result = await response.json();
 
       const formattedSongs = result.data.map((item) => ({
         id: item.fileId,
-        title: item.embeddedMetadata?.Title || item.name,
+        title: item.embeddedMetadata?.Title || item.name.replace(/\[.*?\]\s*\d+\s*-\s*/, ''),
         artist: item.embeddedMetadata?.Artist || "Unknown Artist",
         url: item.url,
         thumbnail: item.thumbnail,
@@ -407,30 +411,33 @@ const ChatRoom = () => {
               {isloading && <Skeleton />}
               
               {filteredSongs.length > 0 ? (
-                filteredSongs.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center space-x-4 p-2 hover:bg-gray-100 rounded-lg cursor-pointer transition border border-gray-100 shadow-sm"
-                    onClick={() => {
-                      setSong(item);
-                      socket.emit('songDetails', { song: item, roomId });
-                      setIsSongListOpen(false);
-                    }}
-                  >
-                    <img
-                      src={item.thumbnail || DefaultPng}
-                      alt={item.title}
-                      className="w-12 h-12 rounded-md object-cover"
-                    />
-                    <div>
-                      <p className="font-medium truncate">{item.title}</p>
-                      <p className="text-sm text-gray-500">{item.artist}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center col-span-2 text-gray-500">No songs found.</p>
-              )}
+  Array.from(
+    new Map(filteredSongs.map(item => [item.id, item])).values()
+  ).map((item) => (
+    <div
+      key={item.id}
+      className={`flex truncate items-center space-x-4 p-2 rounded-lg cursor-pointer transition shadow-sm border border-gray-100 hover:bg-gradient-to-r ${item.color}`}
+      onClick={() => {
+        setSong(item);
+        socket.emit('songDetails', { song: item, roomId });
+        setIsSongListOpen(false);
+      }}
+    >
+      <img
+        src={item.thumbnail ? music1 : DefaultPng}
+        alt={item.title}
+        className="w-12 h-12 rounded-md object-cover"
+      />
+      <div>
+        <p className="font-medium truncate text-ellipsis">{item.title.replace(/\[.*?\]\s*\d+\s*-\s*/, '')}</p>
+        <p className="text-sm text-gray-500">{item.artist}</p>
+      </div>
+    </div>
+  ))
+) : (
+  <p className="text-center col-span-2 text-gray-500">No songs found.</p>
+)}
+
             </div>
           </div>
         </div>
